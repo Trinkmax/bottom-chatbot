@@ -36,7 +36,14 @@ async function main() {
     console.log('✨ Bottom Chatbot está funcionando correctamente');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
     console.log('📱 Para conectar WhatsApp, accede a:');
-    console.log(`   http://localhost:${process.env.PORT || 3000}\n`);
+    
+    if (process.env.RAILWAY_STATIC_URL) {
+      console.log(`   https://${process.env.RAILWAY_STATIC_URL}`);
+      console.log(`   (Railway - Producción)\n`);
+    } else {
+      console.log(`   http://localhost:${process.env.PORT || 8080}\n`);
+    }
+    
     console.log('⚠️  Mantén esta ventana abierta mientras el bot esté en uso');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 

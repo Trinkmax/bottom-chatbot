@@ -88,7 +88,25 @@ export const SETTINGS = {
     browser: ['Bottom Bot', 'Chrome', '1.0.0'],
     syncFullHistory: false,
     markOnlineOnConnect: false,
-    defaultQueryTimeoutMs: 60000
+    defaultQueryTimeoutMs: undefined, // Sin timeout para Railway
+    // Configuración adicional para entornos de producción
+    connectTimeoutMs: undefined,
+    keepAliveIntervalMs: 10000, // Keep-alive más frecuente para Railway
+    emitOwnEvents: false,
+    getMessage: async () => undefined,
+    retryRequestDelayMs: 250,
+    maxMsgRetryCount: 5,
+    fireInitQueries: false, // Desactivar queries de inicialización
+    // Opciones de socket más robustas
+    shouldIgnoreJid: (jid) => jid === 'status@broadcast',
+    linkPreviewImageThumbnailWidth: 192,
+    transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 3000 },
+    generateHighQualityLinkPreview: false,
+    syncFullHistory: false,
+    patchMessageBeforeSending: (message) => {
+      // Asegurar compatibilidad con Railway
+      return message;
+    }
   },
 
   // Tiempo de timeout de sesión en minutos (opcional, 0 = sin timeout)

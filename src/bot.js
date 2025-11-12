@@ -35,12 +35,24 @@ export async function conectarBot() {
     // Cargar estado de autenticación
     const { state, saveCreds } = await useMultiFileAuthState(SETTINGS.RUTAS.AUTH);
 
-    // Crear socket de WhatsApp
+    // Crear socket de WhatsApp con configuración robusta
     sock = makeWASocket({
       version,
       auth: state,
       logger,
-      ...SETTINGS.BAILEYS_CONFIG
+      ...SETTINGS.BAILEYS_CONFIG,
+      // Configuración específica para entornos de producción como Railway
+      qrTimeout: 60000, // Timeout de QR aumentado
+      connectTimeoutMs: 60000,
+      defaultQueryTimeoutMs: undefined,
+      retryRequestDelayMs: 250,
+      maxMsgRetryCount: 5,
+      keepAliveIntervalMs: 10000,
+      // Manejo de errores de WebSocket
+      options: {
+        logger,
+        browser: ['Bottom Bot', 'Chrome', '1.0.0']
+      }
     });
 
     // Guardar credenciales cuando se actualicen
@@ -80,16 +92,35 @@ async function manejarActualizacionConexion(update) {
 
   // Manejar estado de conexión
   if (connection === 'close') {
-    const shouldReconnect = (lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut;
+    const statusCode = lastDisconnect?.error?.output?.statusCode;
+    const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
     
-    console.log('❌ Conexión cerrada:', lastDisconnect?.error);
+    console.log('❌ Conexión cerrada. Status:', statusCode);
+    console.log('Error completo:', lastDisconnect?.error);
+    
     servidor.actualizarEstadoConexion('Desconectado. Intentando reconectar...');
 
     if (shouldReconnect) {
-      console.log('🔄 Reconectando...');
+      console.log('🔄 Reconectando en 5 segundos...');
+      
+      // Limpiar socket anterior
+      if (sock) {
+        try {
+          sock.ev.removeAllListeners();
+        } catch (e) {
+          console.log('Error al limpiar listeners:', e.message);
+        }
+        sock = null;
+      }
+      
+      // Esperar más tiempo antes de reconectar (Railway necesita más tiempo)
       setTimeout(() => {
-        conectarBot();
-      }, 3000);
+        console.log('🔄 Iniciando reconexión...');
+        conectarBot().catch(err => {
+          console.error('Error en reconexión:', err);
+          setTimeout(() => conectarBot(), 10000);
+        });
+      }, 5000);
     } else {
       console.log('❌ Sesión cerrada. Por favor, escanea el código QR nuevamente.');
       servidor.actualizarEstadoConexion('Sesión cerrada. Escanea el código QR nuevamente.');
@@ -98,8 +129,9 @@ async function manejarActualizacionConexion(update) {
     console.log('✅ Conexión establecida con WhatsApp');
     servidor.actualizarEstadoConexion('✅ Conectado correctamente a WhatsApp');
     
-    // Iniciar limpieza periódica de sesiones
-    if (SETTINGS.SESSION_TIMEOUT > 0) {
+    // Iniciar limpieza periódica de sesiones (solo una vez)
+    if (SETTINGS.SESSION_TIMEOUT > 0 && !global.sessionCleanerStarted) {
+      global.sessionCleanerStarted = true;
       setInterval(() => {
         sessionManager.limpiarSesionesInactivas(SETTINGS.SESSION_TIMEOUT);
       }, 5 * 60 * 1000); // Cada 5 minutos

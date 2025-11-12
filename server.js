@@ -271,11 +271,31 @@ app.get('/health', (req, res) => {
  */
 export function iniciarServidor() {
   const PORT = SETTINGS.PORT;
+  const HOST = process.env.RAILWAY_STATIC_URL ? '0.0.0.0' : 'localhost';
   
-  app.listen(PORT, () => {
-    console.log(`🌐 Servidor web iniciado en http://localhost:${PORT}`);
+  const server = app.listen(PORT, HOST, () => {
+    console.log(`🌐 Servidor web iniciado en http://${HOST}:${PORT}`);
     console.log(`📱 Accede para ver el código QR y conectar WhatsApp`);
+    
+    if (process.env.RAILWAY_STATIC_URL) {
+      console.log(`🚂 Railway URL: https://${process.env.RAILWAY_STATIC_URL}`);
+    }
   });
+
+  // Configurar timeouts más largos para Railway
+  server.keepAliveTimeout = 120000; // 120 segundos
+  server.headersTimeout = 120000;
+
+  // Manejo de errores del servidor
+  server.on('error', (error) => {
+    console.error('❌ Error en el servidor:', error);
+    if (error.code === 'EADDRINUSE') {
+      console.log(`⚠️  El puerto ${PORT} ya está en uso. Intentando con otro...`);
+      process.exit(1);
+    }
+  });
+
+  return server;
 }
 
 export default {
