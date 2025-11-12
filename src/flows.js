@@ -21,6 +21,10 @@ export async function procesarMensaje(sock, userId, mensaje) {
   const mensajeTexto = mensaje.trim();
 
   switch (estado) {
+    case ESTADOS.INICIO:
+      // Primera interacción: mostrar mensaje de bienvenida
+      return await mostrarMenuPrincipal(sock, userId);
+
     case ESTADOS.MENU_PRINCIPAL:
       return await procesarMenuPrincipal(sock, userId, mensajeTexto);
 
@@ -76,7 +80,7 @@ export async function procesarFueraDeHorario(sock, userId, mensaje) {
     return await procesarRespuestaFueraDeHorario(sock, userId, mensaje);
   }
   
-  // Primera vez que escribe fuera de horario, mostrar mensaje
+  // Si es la primera interacción o cualquier otro estado, mostrar mensaje de fuera de horario
   sessionManager.actualizarEstado(userId, ESTADOS.FUERA_HORARIO_RESPUESTA);
   return await enviarMensaje(sock, userId, MESSAGES.FUERA_HORARIO);
 }

@@ -10,6 +10,7 @@ const sessions = new Map();
  * Estados posibles del flujo
  */
 export const ESTADOS = {
+  INICIO: 'INICIO', // Primera interacción del usuario
   MENU_PRINCIPAL: 'MENU_PRINCIPAL',
   
   // Estados de Reserva de Mesa
@@ -43,7 +44,7 @@ export const ESTADOS = {
 export function crearSesion(userId) {
   const sesion = {
     userId: userId,
-    estado: ESTADOS.MENU_PRINCIPAL,
+    estado: ESTADOS.INICIO, // Empezar en INICIO para mostrar mensaje de bienvenida
     datos: {},
     ultimaActividad: Date.now(),
     esCumpleanos: false
