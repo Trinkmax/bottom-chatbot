@@ -158,6 +158,12 @@ async function manejarMensajes(messageUpdate) {
 
       // Obtener información del mensaje
       const remoteJid = message.key.remoteJid;
+      
+      // Ignorar mensajes de grupos (terminan con @g.us)
+      if (remoteJid.endsWith('@g.us')) {
+        console.log(`📵 Mensaje de grupo ignorado: ${remoteJid}`);
+        continue;
+      }
       const messageType = Object.keys(message.message)[0];
       
       // Extraer texto del mensaje
