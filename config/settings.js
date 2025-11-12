@@ -63,10 +63,12 @@ export const SETTINGS = {
     '7': 'instagram'
   },
 
-  // Opciones de cumpleaños
-  OPCIONES_CUMPLE: {
-    SI: '1',
-    NO: '2'
+  // Opciones de combos de cumpleaños
+  OPCIONES_COMBOS: {
+    COMBO_1: '1',
+    COMBO_2: '2',
+    COMBO_3: '3',
+    NO_COMBO: '4'
   },
 
   // Opciones de cartas

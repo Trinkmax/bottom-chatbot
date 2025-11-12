@@ -74,10 +74,12 @@ _Escribe tu @usuario (con o sin @)_`,
 
 Estos son nuestros combos disponibles:`,
 
-  CUMPLE_PREGUNTA: `¿Te interesa alguno de estos combos?
+  CUMPLE_SELECCIONAR_COMBO: `Selecciona el combo que deseas:
 
-1️⃣ Sí, me interesa
-2️⃣ No, solo quiero reservar
+1️⃣ Combo 1
+2️⃣ Combo 2
+3️⃣ Combo 3
+4️⃣ No quiero combo
 
 _Escribe el número de tu elección_`,
 
@@ -126,7 +128,7 @@ Para ingresar a las listas o conseguir QR contactá a alguno de nuestros relacio
 👥 *Cantidad de personas:* ${datos.cantidadPersonas}
 ✍️ *Nombre:* ${datos.nombre}
 📱 *Teléfono:* ${datos.telefono}
-📸 *Instagram:* @${datos.instagram}
+📸 *Instagram:* @${datos.instagram}${datos.combo ? `\n🎂 *Combo:* ${datos.combo}` : ''}
 
 Por favor, verifica que los datos sean correctos:
 
@@ -160,7 +162,25 @@ Tus datos de reserva:
 📱 *Teléfono:* ${datos.telefono}
 📸 *Instagram:* @${datos.instagram}
 
-¡Muchas gracias por tu reserva! 💙
+¡Muchas gracias por tu reserva! 💚
+Te esperamos en *Bottom Resto Bar*
+
+_Ante cualquier cambio o cancelación, comunicate con nosotros._`,
+
+  RESERVA_CUMPLE_CONFIRMADA: (datos) => `🎉 *¡RESERVA CONFIRMADA!*
+
+Tus datos de reserva:
+
+📍 *Sede:* ${datos.sede}
+📅 *Fecha:* ${datos.fecha}
+⏰ *Horario:* ${datos.horario}
+👥 *Cantidad de personas:* ${datos.cantidadPersonas}
+✍️ *Nombre:* ${datos.nombre}
+📱 *Teléfono:* ${datos.telefono}
+📸 *Instagram:* @${datos.instagram}
+${datos.combo ? `🎂 *Combo:* ${datos.combo}` : ''}
+
+¡Muchas gracias por tu reserva! 💚
 Te esperamos en *Bottom Resto Bar*
 
 _Ante cualquier cambio o cancelación, comunicate con nosotros._`,
@@ -237,7 +257,7 @@ ${url}
   VOLVER_MENU: `Escribe cualquier mensaje para volver al menú principal 📱`,
 
   // Mensaje cuando el usuario no quiere reservar fuera de horario
-  NO_RESERVA_FUERA_HORARIO: `¡Gracias por tu interés! 💙
+  NO_RESERVA_FUERA_HORARIO: `¡Gracias por tu interés! 💚
 
 Seguinos en Instagram @bottom.restobar para estar al tanto de todas nuestras novedades.
 

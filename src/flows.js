@@ -49,8 +49,8 @@ export async function procesarMensaje(sock, userId, mensaje) {
       return await procesarReservaCambios(sock, userId, mensajeTexto);
 
     // Flujos de Cumpleaños
-    case ESTADOS.CUMPLE_PREGUNTA:
-      return await procesarCumplePregunta(sock, userId, mensajeTexto);
+    case ESTADOS.CUMPLE_SELECCIONAR_COMBO:
+      return await procesarComboSeleccion(sock, userId, mensajeTexto);
 
     // Flujos de Dirección
     case ESTADOS.DIRECCION_SELECCIONAR:
@@ -150,21 +150,34 @@ async function procesarCumpleanos(sock, userId) {
   // Enviar imágenes de combos
   await enviarImagenesCombos(sock, userId);
 
-  // Preguntar si le interesa
-  sessionManager.actualizarEstado(userId, ESTADOS.CUMPLE_PREGUNTA);
-  return await enviarMensaje(sock, userId, MESSAGES.CUMPLE_PREGUNTA);
+  // Mostrar opciones de combos
+  sessionManager.actualizarEstado(userId, ESTADOS.CUMPLE_SELECCIONAR_COMBO);
+  return await enviarMensaje(sock, userId, MESSAGES.CUMPLE_SELECCIONAR_COMBO);
 }
 
-async function procesarCumplePregunta(sock, userId, mensaje) {
+async function procesarComboSeleccion(sock, userId, mensaje) {
   const opcion = mensaje.trim();
 
-  if (opcion === SETTINGS.OPCIONES_CUMPLE.SI || opcion === SETTINGS.OPCIONES_CUMPLE.NO) {
-    // En ambos casos, continuar con el flujo de reserva
+  if (opcion === '1') {
+    sessionManager.actualizarDatos(userId, { combo: 'Combo 1' });
+    sessionManager.actualizarEstado(userId, ESTADOS.RESERVA_SEDE);
+    return await enviarMensaje(sock, userId, MESSAGES.RESERVA_SELECCIONAR_SEDE);
+  } else if (opcion === '2') {
+    sessionManager.actualizarDatos(userId, { combo: 'Combo 2' });
+    sessionManager.actualizarEstado(userId, ESTADOS.RESERVA_SEDE);
+    return await enviarMensaje(sock, userId, MESSAGES.RESERVA_SELECCIONAR_SEDE);
+  } else if (opcion === '3') {
+    sessionManager.actualizarDatos(userId, { combo: 'Combo 3' });
+    sessionManager.actualizarEstado(userId, ESTADOS.RESERVA_SEDE);
+    return await enviarMensaje(sock, userId, MESSAGES.RESERVA_SELECCIONAR_SEDE);
+  } else if (opcion === '4') {
+    // No quiere combo, continuar con reserva normal
+    sessionManager.actualizarDatos(userId, { combo: null });
     sessionManager.actualizarEstado(userId, ESTADOS.RESERVA_SEDE);
     return await enviarMensaje(sock, userId, MESSAGES.RESERVA_SELECCIONAR_SEDE);
   } else {
     await enviarMensaje(sock, userId, MESSAGES.ERROR_OPCION_INVALIDA);
-    return await enviarMensaje(sock, userId, MESSAGES.CUMPLE_PREGUNTA);
+    return await enviarMensaje(sock, userId, MESSAGES.CUMPLE_SELECCIONAR_COMBO);
   }
 }
 
@@ -296,7 +309,14 @@ async function procesarReservaConfirmacion(sock, userId, mensaje) {
   if (opcion === SETTINGS.OPCIONES_CONFIRMACION.CONFIRMAR) {
     // Confirmar reserva
     const datos = sessionManager.obtenerDatosReserva(userId);
-    await enviarMensaje(sock, userId, MESSAGES.RESERVA_CONFIRMADA(datos));
+    const esCumple = sessionManager.esSesionCumpleanos(userId);
+    
+    // Usar mensaje apropiado según si es cumpleaños o no
+    if (esCumple) {
+      await enviarMensaje(sock, userId, MESSAGES.RESERVA_CUMPLE_CONFIRMADA(datos));
+    } else {
+      await enviarMensaje(sock, userId, MESSAGES.RESERVA_CONFIRMADA(datos));
+    }
     
     // Reiniciar sesión
     sessionManager.reiniciarSesion(userId);
