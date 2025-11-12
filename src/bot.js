@@ -3,7 +3,8 @@
  * Maneja la conexión con Baileys y procesa los mensajes
  */
 
-import makeWASocket, { 
+import { 
+  makeWASocket,
   DisconnectReason, 
   useMultiFileAuthState,
   fetchLatestBaileysVersion
