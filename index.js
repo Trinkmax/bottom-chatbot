@@ -3,6 +3,12 @@
  * Inicia el servidor web y el bot de WhatsApp
  */
 
+// Polyfill para crypto (soluciona error en algunos entornos de despliegue)
+import { webcrypto } from 'crypto';
+if (!globalThis.crypto) {
+  globalThis.crypto = webcrypto;
+}
+
 import { conectarBot } from './src/bot.js';
 import { iniciarServidor } from './server.js';
 
