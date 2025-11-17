@@ -1,0 +1,36 @@
+# ========================================
+# CONFIGURACIÓN DEL BOT - BOTTOM CHATBOT
+# ========================================
+# Copia este contenido a tu archivo .env o configúralo en Railway
+
+# ===== PUERTO DEL SERVIDOR =====
+# Puerto donde correrá el servidor web
+PORT=3000
+
+# ===== UBICACIONES =====
+# URLs de Google Maps para las sedes
+UBICACION_GUEMES=https://www.google.com/maps?q=-38.0,57.5
+UBICACION_CERRO=https://www.google.com/maps?q=-38.0,57.5
+
+# ===== MENSAJES PERSONALIZADOS =====
+# Mensaje para QR y Listas (opcional)
+MENSAJE_QR_LISTAS=🎊 *QR Y LISTAS DE BOTTOM*\n\nPara ingresar a las listas o conseguir QR contactá a alguno de nuestros relacionistas:\n\n• @juani.quinteross 3573435902\n• @marttvillafanee\n• @agus_moya16\n• @jose.lopez1108\n• @valencappello\n\n💬 Enviales mensaje directo por Instagram\n\n¡No te quedes afuera de la mejor noche!
+
+# Mensaje fuera de horario (opcional)
+MENSAJE_FUERA_HORARIO=‼️ *Reservas completas por hoy* ‼️\n\nPara ingresar a las listas o conseguir QR contactá a alguno de nuestros relacionistas:\n\n• @juani.quinteross 3573435902\n• @marttvillafanee\n• @agus_moya16\n• @jose.lopez1108\n• @valencappello\n\n💬 Enviales mensaje directo por Instagram\n\nNo te quedes afuera! 🔥\n\n¿Querés reservar para otro día?\n\n1️⃣ Sí, reservar para otro día\n2️⃣ No, gracias\n\n👉 Respondé 1 o 2
+
+# ===== CONFIGURACIÓN DE ADMINISTRACIÓN (NUEVO) =====
+# Contraseña para acceder a comandos de administración
+# ⚠️ IMPORTANTE: Cambia esta contraseña por una segura en producción
+ADMIN_PASSWORD=admin123
+
+# Números de WhatsApp autorizados para usar comandos de admin (opcional)
+# Formato: sin espacios, sin guiones, sin @s.whatsapp.net, separados por comas
+# Ejemplo: ADMIN_NUMBERS=5493512345678,5493519876543
+# Si no se define, cualquiera con la contraseña podrá acceder
+ADMIN_NUMBERS=
+
+# ===== RAILWAY (Producción) =====
+# Railway configura estas variables automáticamente
+# RAILWAY_STATIC_URL=tu-app.railway.app
+

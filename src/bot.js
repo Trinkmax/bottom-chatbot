@@ -17,6 +17,7 @@ import * as validators from './validators.js';
 import * as flows from './flows.js';
 import * as sessionManager from './sessionManager.js';
 import * as servidor from '../server.js';
+import * as admin from './admin.js';
 
 // Logger de Baileys
 const logger = pino({ level: 'silent' }); // 'silent' para producción, 'debug' para desarrollo
@@ -179,8 +180,31 @@ async function manejarMensajes(messageUpdate) {
 
       console.log(`📨 Mensaje de ${remoteJid}: ${textoMensaje}`);
 
+      // Incrementar contador de mensajes
+      admin.incrementarMensajes();
+
       // Marcar mensaje como leído
       await sock.readMessages([message.key]);
+
+      // Detectar comandos de administración
+      if (admin.esComandoAdmin(textoMensaje)) {
+        await admin.procesarComandoAdmin(sock, remoteJid, textoMensaje);
+        continue;
+      }
+
+      // Verificar si el bot está pausado
+      if (admin.estaPausado()) {
+        const mensajePausa = admin.obtenerMensajePausa();
+        await sock.sendMessage(remoteJid, { text: mensajePausa });
+        continue;
+      }
+
+      // Verificar si hay fecha especial para hoy
+      const fechaEspecial = admin.verificarFechaEspecial();
+      if (fechaEspecial) {
+        await sock.sendMessage(remoteJid, { text: fechaEspecial });
+        continue;
+      }
 
       // Verificar horario de atención
       if (!validators.estaDentroDeHorario()) {

@@ -9,6 +9,7 @@ import { MESSAGES } from '../config/messages.js';
 import { SETTINGS } from '../config/settings.js';
 import * as validators from './validators.js';
 import * as sessionManager from './sessionManager.js';
+import * as admin from './admin.js';
 
 const { ESTADOS } = sessionManager;
 
@@ -310,6 +311,9 @@ async function procesarReservaConfirmacion(sock, userId, mensaje) {
     // Confirmar reserva
     const datos = sessionManager.obtenerDatosReserva(userId);
     const esCumple = sessionManager.esSesionCumpleanos(userId);
+    
+    // Incrementar contador de reservas
+    admin.incrementarReservas();
     
     // Usar mensaje apropiado según si es cumpleaños o no
     if (esCumple) {

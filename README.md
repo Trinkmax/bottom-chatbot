@@ -11,6 +11,10 @@ Bot de WhatsApp automatizado para el restaurante Bottom, que gestiona reservas, 
 - 🎟️ Información sobre QR/Listas
 - ⏰ Respuestas automáticas fuera del horario de atención
 - 💬 Flujo conversacional intuitivo
+- 🔐 **Comandos administrativos** para control remoto del bot
+- 📊 Sistema de estadísticas en tiempo real
+- 📅 Configuración de fechas especiales (Navidad, Año Nuevo, etc.)
+- ⏸️ Pausar/activar el bot remotamente
 
 ## 📋 Requisitos
 
@@ -49,17 +53,21 @@ cp .env.example .env
 Bottom-chatbot/
 ├── config/
 │   ├── messages.js          # Todos los mensajes del bot
-│   └── settings.js          # Configuración general
+│   ├── settings.js          # Configuración general
+│   └── admin.js            # Configuración de administración (nuevo)
 ├── src/
 │   ├── bot.js              # Lógica principal del bot
 │   ├── flows.js            # Manejo de flujos conversacionales
 │   ├── sessionManager.js   # Gestión de sesiones de usuario
-│   └── validators.js       # Validaciones de entrada
+│   ├── validators.js       # Validaciones de entrada
+│   └── admin.js            # Comandos administrativos (nuevo)
 ├── media/
 │   ├── combos/             # Imágenes de combos (agregar manualmente)
 │   └── cartas/             # PDFs de cartas (agregar manualmente)
 ├── server.js               # Servidor web para mostrar QR
 ├── index.js                # Punto de entrada
+├── COMANDOS_ADMIN.md       # Documentación de comandos admin (nuevo)
+├── configuracion.ejemplo.txt # Ejemplo de configuración (nuevo)
 └── package.json
 \`\`\`
 
@@ -106,6 +114,56 @@ npm start
 
 ### Variables de Entorno en Railway
 Asegúrate de configurar todas las variables del archivo `.env.example` en el panel de Railway.
+
+## 🔐 Comandos de Administración
+
+El bot incluye un sistema completo de comandos administrativos que te permite controlarlo remotamente desde WhatsApp.
+
+### Configuración Inicial
+
+1. Configura la contraseña de admin en Railway o en tu `.env`:
+```env
+ADMIN_PASSWORD=tu_contraseña_segura
+```
+
+2. (Opcional) Define números autorizados:
+```env
+ADMIN_NUMBERS=5493512345678,5493519876543
+```
+
+### Uso Rápido
+
+**Autenticarse:**
+```
+/admin tu_contraseña
+```
+
+**Comandos principales:**
+- `/pausar [mensaje]` - Pausar el bot
+- `/activar` - Reactivar el bot
+- `/fecha_especial 25/12 🎄 Mensaje` - Configurar fecha especial
+- `/estadisticas` - Ver estadísticas del bot
+- `/estado` - Ver estado actual
+- `/ayuda` - Ver todos los comandos
+
+📖 **Documentación completa:** Ver [COMANDOS_ADMIN.md](./COMANDOS_ADMIN.md)
+
+### Ejemplos de Uso
+
+**Pausar por mantenimiento:**
+```
+/pausar 🔧 Mantenimiento del sistema. Volvemos en 2 horas.
+```
+
+**Configurar Navidad:**
+```
+/fecha_especial 25/12 🎄 ¡Feliz Navidad! Hoy estamos cerrados.
+```
+
+**Ver estadísticas:**
+```
+/estadisticas
+```
 
 ## 🛠️ Personalización
 
