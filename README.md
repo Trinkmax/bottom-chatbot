@@ -8,7 +8,7 @@ Bot de WhatsApp automatizado para el restaurante Bottom, que gestiona reservas, 
 - 🎂 Paquetes especiales para cumpleaños
 - 📍 Información de ubicaciones (sedes Güemes y Cerro)
 - 📄 Envío de cartas en PDF
-- 🎟️ Información sobre QR/Listas
+- 🎟️ Información sobre QR/Listashhh
 - ⏰ Respuestas automáticas fuera del horario de atención
 - 💬 Flujo conversacional intuitivo
 - 🔐 **Comandos administrativos** para control remoto del bot
