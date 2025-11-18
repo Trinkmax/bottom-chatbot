@@ -23,6 +23,10 @@ export const BOT_STATE = {
   pausado: false,
   mensajePausa: null,
   fechasEspeciales: new Map(),
+  // Excepciones de fechas específicas que se pueden reservar (formato DD/MM)
+  fechasExcepcion: new Set(['23/11']), // Domingo 23/11 habilitado
+  // Días de la semana permitidos (0=Domingo, 1=Lunes, ..., 6=Sábado)
+  diasPermitidos: [4, 5, 6], // Por defecto: Jueves, Viernes, Sábado
   estadisticas: {
     mensajesRecibidos: 0,
     reservasCompletadas: 0,

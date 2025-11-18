@@ -207,7 +207,25 @@ async function manejarMensajes(messageUpdate) {
       }
 
       // Verificar horario de atención
-      if (!validators.estaDentroDeHorario()) {
+      // Solo aplicar restricción de horario si el usuario NO está en un flujo de reserva activo
+      const sesion = sessionManager.obtenerSesion(remoteJid);
+      const estadosReserva = [
+        sessionManager.ESTADOS.RESERVA_SEDE,
+        sessionManager.ESTADOS.RESERVA_FECHA,
+        sessionManager.ESTADOS.RESERVA_HORARIO,
+        sessionManager.ESTADOS.RESERVA_CANTIDAD,
+        sessionManager.ESTADOS.RESERVA_NOMBRE,
+        sessionManager.ESTADOS.RESERVA_TELEFONO,
+        sessionManager.ESTADOS.RESERVA_INSTAGRAM,
+        sessionManager.ESTADOS.RESERVA_CONFIRMACION,
+        sessionManager.ESTADOS.RESERVA_CAMBIOS,
+        sessionManager.ESTADOS.CUMPLE_VER_COMBOS,
+        sessionManager.ESTADOS.CUMPLE_SELECCIONAR_COMBO
+      ];
+      
+      const estaEnFlujoReserva = estadosReserva.includes(sesion.estado);
+      
+      if (!validators.estaDentroDeHorario() && !estaEnFlujoReserva) {
         await flows.procesarFueraDeHorario(sock, remoteJid, textoMensaje);
         continue;
       }

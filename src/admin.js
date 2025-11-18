@@ -134,6 +134,23 @@ export async function procesarComandoAdmin(sock, userId, mensaje) {
     case '/logout':
       return await comandoCerrarSesion(sock, userId);
     
+    case '/agregar_fecha':
+      return await comandoAgregarFechaPermitida(sock, userId, args);
+    
+    case '/quitar_fecha':
+      return await comandoQuitarFechaPermitida(sock, userId, args);
+    
+    case '/ver_fechas_permitidas':
+    case '/fechas_permitidas':
+      return await comandoVerFechasPermitidas(sock, userId);
+    
+    case '/configurar_dias':
+    case '/dias':
+      return await comandoConfigurarDias(sock, userId, args);
+    
+    case '/ver_dias':
+      return await comandoVerDias(sock, userId);
+    
     default:
       return await enviarMensaje(sock, userId, 
         '❌ *Comando no reconocido*\n\n' +
@@ -181,10 +198,17 @@ async function comandoAyuda(sock, userId) {
 • \`/activar\` - Reactivar el bot
 • \`/estado\` - Ver estado actual del bot
 
-*📅 Fechas Especiales:*
+*📅 Fechas Especiales (mensajes):*
 • \`/fecha_especial <DD/MM> <mensaje>\` - Configurar fecha especial
 • \`/ver_fechas\` - Ver fechas configuradas
 • \`/eliminar_fecha <DD/MM>\` - Eliminar fecha especial
+
+*📆 Días y Fechas Permitidas (reservas):*
+• \`/agregar_fecha <DD/MM>\` - Permitir reserva en fecha específica
+• \`/quitar_fecha <DD/MM>\` - Quitar fecha permitida
+• \`/ver_fechas_permitidas\` - Ver fechas específicas habilitadas
+• \`/configurar_dias <0-6>\` - Configurar días permitidos
+• \`/ver_dias\` - Ver días configurados
 
 *📊 Estadísticas:*
 • \`/estadisticas\` - Ver estadísticas del bot
@@ -490,6 +514,172 @@ export function incrementarMensajes() {
  */
 export function incrementarReservas() {
   BOT_STATE.estadisticas.reservasCompletadas++;
+}
+
+/**
+ * Comando: /agregar_fecha <DD/MM>
+ */
+async function comandoAgregarFechaPermitida(sock, userId, args) {
+  if (args.length === 0) {
+    return await enviarMensaje(sock, userId,
+      '❌ *Uso incorrecto*\n\n' +
+      'Uso: `/agregar_fecha <DD/MM>`\n\n' +
+      '*Ejemplo:*\n' +
+      '`/agregar_fecha 23/11` - Permite reservas para el 23/11\n\n' +
+      'Esto permite reservar en una fecha específica, incluso si ese día de la semana normalmente no está permitido.'
+    );
+  }
+  
+  const fecha = args[0];
+  
+  // Validar formato de fecha
+  if (!/^\d{1,2}\/\d{1,2}$/.test(fecha)) {
+    return await enviarMensaje(sock, userId,
+      '❌ *Formato de fecha inválido*\n\n' +
+      'Usa el formato DD/MM\n' +
+      '*Ejemplo:* `23/11`'
+    );
+  }
+  
+  // Agregar fecha a las excepciones
+  BOT_STATE.fechasExcepcion.add(fecha);
+  
+  return await enviarMensaje(sock, userId,
+    '✅ *Fecha permitida agregada*\n\n' +
+    `*Fecha:* ${fecha}\n\n` +
+    'Ahora los usuarios pueden reservar para esta fecha específica.\n\n' +
+    '_Usa `/ver_fechas_permitidas` para ver todas las fechas habilitadas._'
+  );
+}
+
+/**
+ * Comando: /quitar_fecha <DD/MM>
+ */
+async function comandoQuitarFechaPermitida(sock, userId, args) {
+  if (args.length === 0) {
+    return await enviarMensaje(sock, userId,
+      '❌ *Uso incorrecto*\n\n' +
+      'Uso: `/quitar_fecha <DD/MM>`\n\n' +
+      '*Ejemplo:*\n' +
+      '`/quitar_fecha 23/11`'
+    );
+  }
+  
+  const fecha = args[0];
+  
+  if (!BOT_STATE.fechasExcepcion.has(fecha)) {
+    return await enviarMensaje(sock, userId,
+      `❌ La fecha ${fecha} no está en la lista de fechas permitidas.\n\n` +
+      'Usa `/ver_fechas_permitidas` para ver las fechas configuradas.'
+    );
+  }
+  
+  BOT_STATE.fechasExcepcion.delete(fecha);
+  
+  return await enviarMensaje(sock, userId,
+    `✅ *Fecha quitada*\n\nLa fecha ${fecha} ya no está habilitada para reservas.`
+  );
+}
+
+/**
+ * Comando: /ver_fechas_permitidas
+ */
+async function comandoVerFechasPermitidas(sock, userId) {
+  if (BOT_STATE.fechasExcepcion.size === 0) {
+    return await enviarMensaje(sock, userId,
+      'ℹ️ No hay fechas específicas habilitadas.\n\n' +
+      'Las reservas solo están permitidas para los días de la semana configurados.\n\n' +
+      'Usa `/agregar_fecha <DD/MM>` para habilitar una fecha específica.'
+    );
+  }
+  
+  let mensaje = '📆 *FECHAS ESPECÍFICAS HABILITADAS*\n\n';
+  mensaje += 'Estas fechas están permitidas para reservas:\n\n';
+  
+  const fechasArray = Array.from(BOT_STATE.fechasExcepcion).sort();
+  for (const fecha of fechasArray) {
+    mensaje += `• ${fecha}\n`;
+  }
+  
+  mensaje += '\n_Usa `/quitar_fecha <DD/MM>` para deshabilitar una fecha_';
+  
+  return await enviarMensaje(sock, userId, mensaje);
+}
+
+/**
+ * Comando: /configurar_dias <días>
+ */
+async function comandoConfigurarDias(sock, userId, args) {
+  if (args.length === 0) {
+    return await enviarMensaje(sock, userId,
+      '❌ *Uso incorrecto*\n\n' +
+      'Uso: `/configurar_dias <días separados por comas>`\n\n' +
+      '*Días de la semana:*\n' +
+      '0 = Domingo\n' +
+      '1 = Lunes\n' +
+      '2 = Martes\n' +
+      '3 = Miércoles\n' +
+      '4 = Jueves\n' +
+      '5 = Viernes\n' +
+      '6 = Sábado\n\n' +
+      '*Ejemplos:*\n' +
+      '`/configurar_dias 4,5,6` - Jueves, Viernes, Sábado\n' +
+      '`/configurar_dias 5,6,0` - Viernes, Sábado, Domingo\n' +
+      '`/configurar_dias 0,1,2,3,4,5,6` - Todos los días'
+    );
+  }
+  
+  const diasInput = args[0];
+  const dias = diasInput.split(',').map(d => parseInt(d.trim(), 10));
+  
+  // Validar que sean números entre 0 y 6
+  const invalidos = dias.filter(d => isNaN(d) || d < 0 || d > 6);
+  if (invalidos.length > 0) {
+    return await enviarMensaje(sock, userId,
+      '❌ *Días inválidos*\n\n' +
+      'Los días deben ser números entre 0 (domingo) y 6 (sábado).\n\n' +
+      '*Ejemplo:* `/configurar_dias 4,5,6`'
+    );
+  }
+  
+  // Actualizar días permitidos
+  BOT_STATE.diasPermitidos = dias;
+  
+  const nombresDias = dias.map(d => {
+    const temp = moment().day(d);
+    return temp.format('dddd');
+  }).join(', ');
+  
+  return await enviarMensaje(sock, userId,
+    '✅ *Días permitidos actualizados*\n\n' +
+    `*Días configurados:* ${nombresDias}\n\n` +
+    'Ahora solo se aceptarán reservas para estos días de la semana.\n\n' +
+    '_Usa `/agregar_fecha <DD/MM>` para permitir fechas específicas adicionales._'
+  );
+}
+
+/**
+ * Comando: /ver_dias
+ */
+async function comandoVerDias(sock, userId) {
+  const dias = BOT_STATE.diasPermitidos;
+  
+  const nombresDias = dias.map(d => {
+    const temp = moment().day(d);
+    return temp.format('dddd');
+  }).join(', ');
+  
+  let mensaje = '📆 *DÍAS PERMITIDOS PARA RESERVAS*\n\n';
+  mensaje += `*Días de la semana:* ${nombresDias}\n\n`;
+  
+  if (BOT_STATE.fechasExcepcion.size > 0) {
+    mensaje += `*Fechas específicas adicionales:* ${BOT_STATE.fechasExcepcion.size}\n`;
+    mensaje += '(Usa `/ver_fechas_permitidas` para verlas)\n\n';
+  }
+  
+  mensaje += '_Usa `/configurar_dias` para cambiar los días permitidos_';
+  
+  return await enviarMensaje(sock, userId, mensaje);
 }
 
 /**

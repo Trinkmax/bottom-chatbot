@@ -5,6 +5,7 @@
 
 import moment from 'moment-timezone';
 import { SETTINGS } from '../config/settings.js';
+import { BOT_STATE } from '../config/admin.js';
 
 /**
  * Valida si una opción está dentro de las opciones válidas
@@ -78,14 +79,32 @@ export function validarFecha(fechaInput) {
     };
   }
 
-  // Validar que sea jueves (4), viernes (5) o sábado (6)
+  // Verificar si la fecha es una excepción (fechas específicas permitidas)
+  const fechaFormato = `${dia}/${mes}`;
+  if (BOT_STATE.fechasExcepcion.has(fechaFormato)) {
+    // Esta fecha específica está permitida, permitir reserva
+    return {
+      valido: true,
+      fecha: fecha,
+      mensaje: 'Fecha válida (excepción)'
+    };
+  }
+
+  // Validar que sea uno de los días permitidos (usar BOT_STATE en lugar de SETTINGS)
   const diaSemana = fecha.day();
-  if (!SETTINGS.DIAS_PERMITIDOS.includes(diaSemana)) {
+  const diasPermitidos = BOT_STATE.diasPermitidos || SETTINGS.DIAS_PERMITIDOS;
+  
+  if (!diasPermitidos.includes(diaSemana)) {
     const nombreDia = fecha.format('dddd');
+    const nombresDias = diasPermitidos.map(d => {
+      const temp = moment().day(d);
+      return temp.format('dddd');
+    }).join(', ');
+    
     return {
       valido: false,
       fecha: null,
-      mensaje: `La fecha seleccionada es ${nombreDia}. Solo aceptamos reservas para jueves, viernes o sábado`
+      mensaje: `La fecha seleccionada es ${nombreDia}. Solo aceptamos reservas para: ${nombresDias}`
     };
   }
 
